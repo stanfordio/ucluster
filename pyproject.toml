@@ -3,6 +3,9 @@ name = "ucluster"
 version = "0.1.0"
 description = "User clustering utility"
 authors = ["R. Miles McCain <github@sendmiles.email>"]
+packages = [
+    { include = "ucluster" }
+]
 
 [tool.poetry.dependencies]
 python = "^3.9"

@@ -1,3 +1,4 @@
+from functools import lru_cache
 from os import fdopen, remove
 from typing import List
 import fasttext
@@ -51,11 +52,11 @@ class FuzzyClusterer(TextClusterer):
         self._model = model
 
     def _vectorize(self, text: str) -> ndarray:
-        return self.model.get_sentence_vector(preprocess_text(text))
+        return self._model.get_sentence_vector(preprocess_text(text))
 
     def _cluster_texts(self, texts: List[str]) -> None:
         logger.info("Clustering texts...")
-        vectors = [self._vectorize(text, model) for text in texts]
+        vectors = [self._vectorize(text) for text in texts]
         clusters = hdbscan.HDBSCAN(
             min_cluster_size=self.min_cluster_size, min_samples=self.min_samples
         )
@@ -65,7 +66,7 @@ class FuzzyClusterer(TextClusterer):
 
     def fit(self, texts: List[str]) -> None:
         self._train_word_vectors(texts)
-        self._cluster_texts()
+        self._cluster_texts(texts)
 
     def clusters(self) -> List[int]:
         return self._predictions

@@ -1,0 +1,12 @@
+{
+    "name": "ucluster",
+    "description": "utilities for clustering textual data",
+    "maintainer": "R. Miles McCain <github@sendmiles.email>",
+    "latest_release": "2021-11-21",
+    "url": "https://raw.githubusercontent.com/stanfordio/ucluster/main/vd/plugin.py",
+    "latest_ver": "1.0",
+    "visidata_ver": "2.0",
+    "pydeps": "ucluster",
+    "vdplugindeps": "",
+    "sha256": "6b3baf4e1c4550947e611b9f1bdc96b7193f85048d0fc83880c4be0e7a5537d4"
+   }
