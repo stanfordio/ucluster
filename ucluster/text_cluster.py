@@ -118,7 +118,7 @@ def _display_clusters(
 
 
 if __name__ == "__main__":
-    with open("data/buzz_full.txt", "r") as infile:
+    with open("data/gab_small.txt", "r") as infile:
         lines = infile.readlines()
     cl = ExactClusterer()
     cl.fit(lines)
