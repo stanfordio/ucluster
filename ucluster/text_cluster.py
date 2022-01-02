@@ -8,7 +8,14 @@ from numpy import ndarray
 from loguru import logger
 from collections import defaultdict
 import hdbscan
+import json
 
+# We want logging disabled whenever we are running as a library; we only want it enabled for
+# debugging purposes, so we just enable it explicitly when __name__ == "__main__".
+logger.disable(__name__)
+
+# Ensure it's present. Won't redownload.
+nltk.download("punkt")
 
 def preprocess_text(text: str) -> str:
     return " ".join(nltk.word_tokenize(text.lower()))
@@ -41,12 +48,13 @@ class FuzzyClusterer(TextClusterer):
     ) -> None:
         logger.info("Training word vectors...")
         fd, path = tempfile.mkstemp()
+        logger.info(f"Using tempfile: {path}")
         with fdopen(fd, "wb") as outfile:
             for text in texts:
                 out = preprocess_text(text) + "\n"
                 outfile.write(out.encode("utf8"))
 
-        model = fasttext.train_unsupervised(path, model="skipgram", dim=self.dims)
+        model = fasttext.train_unsupervised(path, model="skipgram", dim=self.dims, verbose=0)
         remove(path)
         logger.info("Word vectors trained!")
         self._model = model
@@ -116,10 +124,23 @@ def _display_clusters(
         for idx in indices:
             print(f"{cluster} {probabilities[idx]}: {texts[idx].strip()}")
 
-
 if __name__ == "__main__":
-    with open("data/gab_small.txt", "r") as infile:
-        lines = infile.readlines()
-    cl = ExactClusterer()
-    cl.fit(lines)
-    _display_clusters(lines, cl.clusters(), cl.probabilities())
+    logger.enable(__name__)
+
+    with open("data/gab_small.jsonl", "r") as infile:
+        posts = [json.loads(l) for l in infile.readlines()]
+
+    logger.info("Getting text data from input...")
+    text_data = [post["content"] for post in posts]
+
+    logger.info("Clustering...")
+    cl = FuzzyClusterer()
+    cl.fit(text_data)
+
+    logger.info("Writing to file...")
+    with open("data/clustered.jsonl", "w") as outfile:
+        for post, cluster in zip(posts, cl.clusters()):
+            post["_cluster"] = str(cluster)
+            print(json.dumps(post), file=outfile)
+    
+    logger.info("Done writing clusters to the file!")
