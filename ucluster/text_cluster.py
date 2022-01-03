@@ -18,8 +18,8 @@ logger.disable(__name__)
 nltk.download("punkt")
 
 def preprocess_text(text: str) -> str:
+    text = text.encode("utf-8", "replace").decode() # Make everything play nice
     return " ".join(nltk.word_tokenize(text.lower()))
-
 
 class TextClusterer:
     def fit(self, texts: List[str]) -> None:
@@ -52,7 +52,7 @@ class FuzzyClusterer(TextClusterer):
         with fdopen(fd, "wb") as outfile:
             for text in texts:
                 out = preprocess_text(text) + "\n"
-                outfile.write(out.encode("utf8"))
+                outfile.write(out.encode("utf-8", "replace"))
 
         model = fasttext.train_unsupervised(path, model="skipgram", dim=self.dims, verbose=0)
         remove(path)
@@ -127,11 +127,11 @@ def _display_clusters(
 if __name__ == "__main__":
     logger.enable(__name__)
 
-    with open("data/gab_small.jsonl", "r") as infile:
+    with open("data/gettr_posts_annoying.jsonl", "r") as infile:
         posts = [json.loads(l) for l in infile.readlines()]
 
     logger.info("Getting text data from input...")
-    text_data = [post["content"] for post in posts]
+    text_data = [post.get("txt") or "" for post in posts]
 
     logger.info("Clustering...")
     cl = FuzzyClusterer()
