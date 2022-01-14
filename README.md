@@ -35,7 +35,7 @@ When installed in VisiData, the uCluster plugin adds two commands that operate o
 
 ## Installation
 
-For most people installing uCluster is as easy as running `pip3 install ucluster`, then adding `import ucluster.vd` to your `~/.visidatarc` file. If you want to install uCluster in a way that allows local development, follow the "Development Installation" steps below.
+For most people installing uCluster is as easy as running `pip3 install ucluster`, then adding `import ucluster.vd.plugin` to your `~/.visidatarc` file. If you want to install uCluster in a way that allows local development, follow the "Development Installation" steps below.
 
 ### Development Installation
 
@@ -59,7 +59,7 @@ uCluster will now be available in your Python environment.
 
 #### 2. Install uCluster in VisiData
 
-First ensure that the local `ucluster` package is installed in the same Python environment as VisiData. Then simply add `import ucluster.vd` to your `~/.visidatarc` file, as explained above.
+First ensure that the local `ucluster` package is installed in the same Python environment as VisiData. Then simply add `import ucluster.vd.plugin` to your `~/.visidatarc` file, as explained above.
 
 ## In The Weeds: Architecture & Design
 
