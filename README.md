@@ -35,7 +35,11 @@ When installed in VisiData, the uCluster plugin adds two commands that operate o
 
 ## Installation
 
-uCluster has several dependencies that are not pure Python (e.g., Facebook's [fastText](https://fasttext.cc/)), which means that it can be a bit of a pain to install.
+For most people installing uCluster is as easy as running `pip3 install ucluster`, then adding `import ucluster.vd` to your `~/.visidatarc` file. If you want to install uCluster in a way that allows local development, follow the "Development Installation" steps below.
+
+### Development Installation
+
+**Note**: Following these steps is only necessary if you want to be able to hack on uCluster's code itself.
 
 The first step is to clone uCluster onto your local machine (`git clone git@github.com:stanfordio/ucluster.git`). Then follow the steps below.
 
@@ -55,13 +59,7 @@ uCluster will now be available in your Python environment.
 
 #### 2. Install uCluster in VisiData
 
-The next step is to install uCluster in VisiData. The approach described here is a bit hacky, so if you find a better way to do this, please submit a PR.
-
-1. Make your local VisiData plugins directory if it doesn't yet exist with `mkdir -p ~/.visidata/plugins`.
-2. Create a **hard link** from `~/.visidata/plugins/ucluster.py` to `vd/plugin.py` in the directory where you've locally cloned uCluster. You can do this by running `ln vd/plugin.py ~/.visidata/plugins/ucluster.py` from the main uCluster directory.
-3. Tell VisiData about the plugin by adding the following line to your `~/.visidatarc` file: `import plugins.ucluster`.
-
-You should now be able to use uCluster inside VisiData.
+First ensure that the local `ucluster` package is installed in the same Python environment as VisiData. Then simply add `import ucluster.vd` to your `~/.visidatarc` file, as explained above.
 
 ## In The Weeds: Architecture & Design
 
