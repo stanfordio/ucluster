@@ -17,9 +17,11 @@ logger.disable(__name__)
 # Ensure it's present. Won't redownload.
 nltk.download("punkt")
 
+
 def preprocess_text(text: str) -> str:
-    text = text.encode("utf-8", "replace").decode() # Make everything play nice
+    text = text.encode("utf-8", "replace").decode()  # Make everything play nice
     return " ".join(nltk.word_tokenize(text.lower()))
+
 
 class TextClusterer:
     def fit(self, texts: List[str]) -> None:
@@ -36,10 +38,14 @@ class TextClusterer:
 
 
 class FuzzyClusterer(TextClusterer):
-    def __init__(self, dims=25, min_cluster_size=3, min_samples=3):
+    def __init__(
+        self, dims=100, min_cluster_size=3, min_samples=3, alpha=1.0, epsilon=0.0
+    ):
         self.dims = dims
         self.min_cluster_size = min_cluster_size
         self.min_samples = min_samples
+        self.alpha = alpha
+        self.epsilon = epsilon
         self._model = None
 
     def _train_word_vectors(
@@ -54,7 +60,9 @@ class FuzzyClusterer(TextClusterer):
                 out = preprocess_text(text) + "\n"
                 outfile.write(out.encode("utf-8", "replace"))
 
-        model = fasttext.train_unsupervised(path, model="skipgram", dim=self.dims, verbose=0)
+        model = fasttext.train_unsupervised(
+            path, model="skipgram", dim=self.dims, verbose=0
+        )
         remove(path)
         logger.info("Word vectors trained!")
         self._model = model
@@ -66,7 +74,10 @@ class FuzzyClusterer(TextClusterer):
         logger.info("Clustering texts...")
         vectors = [self._vectorize(text) for text in texts]
         clusters = hdbscan.HDBSCAN(
-            min_cluster_size=self.min_cluster_size, min_samples=self.min_samples
+            min_cluster_size=self.min_cluster_size,
+            min_samples=self.min_samples,
+            alpha=self.alpha,
+            cluster_selection_epsilon=self.epsilon,
         )
         self._predictions = clusters.fit_predict(vectors)
         logger.info("Clustering complete!")
@@ -124,6 +135,7 @@ def _display_clusters(
         for idx in indices:
             print(f"{cluster} {probabilities[idx]}: {texts[idx].strip()}")
 
+
 if __name__ == "__main__":
     logger.enable(__name__)
 
@@ -142,5 +154,5 @@ if __name__ == "__main__":
         for post, cluster in zip(posts, cl.clusters()):
             post["_cluster"] = str(cluster)
             print(json.dumps(post), file=outfile)
-    
+
     logger.info("Done writing clusters to the file!")

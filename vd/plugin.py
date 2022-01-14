@@ -12,6 +12,7 @@ import ucluster
 __author__ = "R. Miles McCain <github@sendmiles.email>"
 __version__ = "1.0.0"
 
+
 @asyncthread
 def cluster(col: Column, clusterer: ucluster.TextClusterer, col_name: str):
     sheet = col.sheet
@@ -29,11 +30,12 @@ def cluster(col: Column, clusterer: ucluster.TextClusterer, col_name: str):
 
     clusterer.fit(texts)
 
-    for r, v, in zip(
-        rows,
-        clusterer.clusters()
-    ):
+    for (
+        r,
+        v,
+    ) in zip(rows, clusterer.clusters()):
         clusters.setValue(r, v)
+
 
 @Column.api
 def exact_cluster(col: Column):
