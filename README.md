@@ -41,9 +41,15 @@ The first step is to clone uCluster onto your local machine (`git clone git@gith
 
 #### 1. Install dependencies.
 
+Mac users will need to install OpenCV and OpenBLAS using Homebrew: `brew install openblas opencv`. (On Linux, see [this guide](https://docs.scipy.org/doc/scipy/reference/building/linux.html)).
+
 If you're on an x86 machine, everything should go relatively smoothly. With [Poetry](https://python-poetry.org/) installed, simply run `poetry install`. If you want to use uCluster in your "main" VisiData environment (i.e., you don't want to have to activate the Poetry virtual environment every time), then run `poetry env use $(which python3)` before running `poetry install`.
 
 If you're on an M1 machine, things are a bit more complex. It doesn't seem possible to install SciPy (required by NLTK) using pip3 on the M1's, as it requires building SciPy from scratch. As a result, you'll need to use [Conda](https://conda.io). In the main project folder, run `conda env create -f env.yml`, then `conda activate ucluster`. Next, run `poetry env use $(which python3)` followed by `poetry install`.
+
+> If you run into strange compilation issues on Mac while running `poetry install`, you may need to explicitly point Poetry at your OpenBLAS and OpenCV installations.
+>
+> You can do this by running `SYSTEM_VERSION_COMPAT=1 LDFLAGS="-L/usr/local/opt/openblas/lib" CPPFLAGS="-I/usr/local/opt/openblas/include" OPENBLAS="$(brew --prefix openblas)" poetry install` instead of just `poetry install`.
 
 uCluster will now be available in your Python environment.
 
