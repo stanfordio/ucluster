@@ -39,7 +39,7 @@ class TextClusterer:
 
 class FuzzyClusterer(TextClusterer):
     def __init__(
-        self, dims=100, min_cluster_size=3, min_samples=3, alpha=1.0, epsilon=0.0
+        self, dims=25, min_cluster_size=3, min_samples=3, alpha=1.0, epsilon=0.0
     ):
         self.dims = dims
         self.min_cluster_size = min_cluster_size
