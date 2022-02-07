@@ -46,6 +46,11 @@ def exact_cluster(col: Column):
 def fuzzy_cluster(col: Column):
     cluster(col, ucluster.FuzzyClusterer(), col_name="fuzzy")
 
+@Column.api
+def tf_cluster(col: Column):
+    cluster(col, ucluster.TransformerCluster(), col_name="tf")
+
 
 BaseSheet.addCommand(None, "exact-cluster", "cursorCol.exact_cluster()")
 BaseSheet.addCommand(None, "fuzzy-cluster", "cursorCol.fuzzy_cluster()")
+BaseSheet.addCommand(None, "tf-cluster", "cursorCol.tf_cluster()")

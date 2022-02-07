@@ -37,6 +37,43 @@ class TextClusterer:
         raise NotImplemented
 
 
+class TransformerCluster(TextClusterer):
+    def __init__(
+        self, min_cluster_size=3, min_samples=3, alpha=1.0, epsilon=0.0
+    ):
+        from sentence_transformers import SentenceTransformer
+
+        self.model = SentenceTransformer('distiluse-base-multilingual-cased-v2')
+        self.min_cluster_size = min_cluster_size
+        self.min_samples = min_samples
+        self.alpha = alpha
+        self.epsilon = epsilon
+
+    def _cluster_texts(self, texts: List[str]) -> None:
+        logger.info("Clustering texts...")
+        vectors = self.model.encode(texts)
+        clusters = hdbscan.HDBSCAN(
+            min_cluster_size=self.min_cluster_size,
+            min_samples=self.min_samples,
+            alpha=self.alpha,
+            cluster_selection_epsilon=self.epsilon,
+        )
+        self._predictions = clusters.fit_predict(vectors)
+        logger.info("Clustering complete!")
+        self._clusterer = clusters
+
+    def fit(self, texts: List[str]) -> None:
+        self._cluster_texts(texts)
+
+    def clusters(self) -> List[int]:
+        return self._predictions
+
+    def probabilities(self) -> List[float]:
+        return self._clusterer.probabilities_
+
+    def outlier_probabilities(self) -> List[float]:
+        return self._clusterer.outlier_scores_
+
 class FuzzyClusterer(TextClusterer):
     def __init__(
         self, dims=25, min_cluster_size=3, min_samples=3, alpha=1.0, epsilon=0.0
@@ -139,14 +176,14 @@ def _display_clusters(
 if __name__ == "__main__":
     logger.enable(__name__)
 
-    with open("data/gettr_posts_annoying.jsonl", "r") as infile:
+    with open("data/gettr_posts_small.jsonl", "r") as infile:
         posts = [json.loads(l) for l in infile.readlines()]
 
     logger.info("Getting text data from input...")
     text_data = [post.get("txt") or "" for post in posts]
 
     logger.info("Clustering...")
-    cl = FuzzyClusterer()
+    cl = TransformerCluster()
     cl.fit(text_data)
 
     logger.info("Writing to file...")
