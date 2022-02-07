@@ -50,8 +50,9 @@ class TransformerCluster(TextClusterer):
         self.epsilon = epsilon
 
     def _cluster_texts(self, texts: List[str]) -> None:
-        logger.info("Clustering texts...")
+        logger.info("Encoding texts...")
         vectors = self.model.encode(texts)
+        logger.info("Clustering texts...")
         clusters = hdbscan.HDBSCAN(
             min_cluster_size=self.min_cluster_size,
             min_samples=self.min_samples,
