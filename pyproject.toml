@@ -10,10 +10,10 @@ packages = [
 [tool.poetry.dependencies]
 python = "^3.8"
 fasttext = "^0.9.2"
-nltk = "^3.6.5"
+nltk = "^3.7"
 loguru = "^0.6.0"
-hdbscan = "^0.8.27"
-visidata = "^2.8"
+hdbscan = "^0.8.29"
+visidata = "^2.10"
 
 [tool.poetry.dev-dependencies]
 black = "^21.11b1"
