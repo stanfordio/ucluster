@@ -21,7 +21,7 @@ uCluster is not a magic tool, and it's important to be mindful of its inherent l
 
 1. **Clusters aren't significant by themselves.** The clusters exist only to point you towards potentially related content — there is nothing significant about the clusters themselves. For example, if two users' posts frequently cluster together, that is not a sign of coordinated inauthentic behavior; it's simply a sign that you might want to investigate those users (and those clusters) further.
 
-2. **It handles English best (but it's still somewhat multilingual).** uCluster (and the tools it uses under the hood) makes several assumptions about the input text, which tend to be most accurate for English text, usually accurate for latin-charactered space-separated languages (e.g., Portuguese), kind of accurate for other space-separated languages (e.g., Russian), and least accurate for character-based languages (e.g., Chinese). You can use uCluster for multilingual datasets (this is one of its key design goals), but don't be surprised if you end up with a cluster that is characterized not by content, per se, but by language (e.g., a cluster that contains all the Arabic posts in your dataset).
+2. **It handles English best (but it's still somewhat multilingual).** uCluster (and the tools it uses under the hood) makes several assumptions about the input text, which tend to be most accurate for English text, usually accurate for latin-charactered space-separated languages (e.g., Portuguese), kind of accurate for other space-separated languages (e.g., Russian), and least accurate for logograph-based languages (e.g., Chinese). You can use uCluster for multilingual datasets (this is one of its key design goals), but don't be surprised if you end up with a cluster that is characterized not by content, per se, but by language (e.g., a cluster that contains all the Arabic posts in your dataset).
 
 3. **It uses a lot of memory.** uCluster doesn't use pre-trained word vectors; this is what makes it possible to cluster multilingual content, as well as what allows it to perform so well on social media content. Rather, it trains its word vectors from scratch each time you run it. This means that it uses quite a bit of memory. You might want to run this on a powerful server somewhere — not on your laptop.
 
@@ -49,7 +49,7 @@ Mac users will need to install OpenCV and OpenBLAS using Homebrew: `brew install
 
 If you're on an x86 machine, everything should go relatively smoothly. With [Poetry](https://python-poetry.org/) installed, simply run `poetry install`. If you want to use uCluster in your "main" VisiData environment (i.e., you don't want to have to activate the Poetry virtual environment every time), then run `poetry config virtualenvs.create false` before running `poetry install`.
 
-If you're on an M1 machine, things are a bit more complex. It doesn't seem possible to install SciPy (required by NLTK) using pip3 on the M1's, as it requires building SciPy from scratch. As a result, you'll need to use [Conda](https://conda.io). In the main project folder, run `conda env create -f env.yml`, then `conda activate ucluster`. Next, run `poetry env use $(which python3)` followed by `poetry install`.
+If you're on an M1 machine, things are a bit more complex. It doesn't seem possible to install SciPy (required by NLTK) using pip3 on M1 Macs, as it requires building SciPy from scratch. As a result, you'll need to use [Conda](https://conda.io). In the main project folder, run `conda env create -f env.yml`, then `conda activate ucluster`. Next, run `poetry env use $(which python3)` followed by `poetry install`.
 
 > If you run into strange compilation issues on Mac while running `poetry install`, you may need to explicitly point Poetry at your OpenBLAS and OpenCV installations.
 >
@@ -68,7 +68,3 @@ This section will eventually contain a more detailed explanation for how uCluste
 * First, we throw all the text into a giant file and use it to train word vectors using FastText.
 * Next, we use those word vectors to turn each post into a vector. By default, we use 100-dimensional space.
 * Finally, we run [HDBSCAN](https://hdbscan.readthedocs.io/) on those post vectors to create the final clusters. HDBSCAN is a high-performance general purpose clustering algorithm.
-
-## Maintenance
-
-uCluster is intended for internal SIO use, and currently maintained by Miles McCain. If you run into issues, ping the tech team and we will help.
