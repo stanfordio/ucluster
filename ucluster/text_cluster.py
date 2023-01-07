@@ -15,7 +15,7 @@ import json
 logger.disable(__name__)
 
 # Ensure it's present. Won't redownload.
-nltk.download("punkt")
+nltk.download("punkt", quiet=True)
 
 
 def preprocess_text(text: str) -> str:
