@@ -5,20 +5,20 @@ description = "Text-based clustering utility"
 readme = "README.md"
 license = { file = "LICENSE.md" }
 authors = [{ name = "R. Miles McCain", email = "github@sendmiles.email" }]
-requires-python = ">=3.10"
+requires-python = ">=3.12"
 dependencies = [
-    "loguru>=0.7.2",
-    "nltk>=3.9",
-    "scikit-learn>=1.3",
-    "sentence-transformers>=2.7",
-    "visidata>=3.0",
+    "loguru>=0.7.3",
+    "nltk>=3.9.4",
+    "scikit-learn>=1.8",
+    "sentence-transformers>=5.4",
+    "visidata>=3.3",
 ]
 
 [project.optional-dependencies]
 dev = [
-    "pytest>=8.0",
-    "ruff>=0.5",
-    "ty>=0.0.1a1",
+    "pytest>=9.0",
+    "ruff>=0.15",
+    "ty>=0.0.32",
 ]
 
 [build-system]
@@ -30,7 +30,7 @@ packages = ["ucluster"]
 
 [tool.ruff]
 line-length = 100
-target-version = "py310"
+target-version = "py312"
 
 [tool.ruff.lint]
 select = ["E", "F", "I", "UP", "B"]
