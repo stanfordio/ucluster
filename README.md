@@ -1,3 +1,5 @@
+### Please see maintained fork at: https://github.com/w2rc/ucluster
+
 # uCluster
 uCluster is a simple and fast way to cluster textual content. It is available both as a standalone Python package as well as a [VisiData](https://visidata.org) plugin. This documentation will focus on using uCluster as a VisiData plugin; to see how to use it as a Python package, simply inspect [`ucluster/text_cluster.py`](ucluster/text_cluster.py) — it's a very simple interface.
 
