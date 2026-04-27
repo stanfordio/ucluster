@@ -23,7 +23,7 @@ uCluster is not a magic tool, and it's important to be mindful of its inherent l
 
 2. **It handles English best (but it's still somewhat multilingual).** uCluster (and the tools it uses under the hood) makes several assumptions about the input text, which tend to be most accurate for English text, usually accurate for latin-charactered space-separated languages (e.g., Portuguese), kind of accurate for other space-separated languages (e.g., Russian), and least accurate for logograph-based languages (e.g., Chinese). You can use uCluster for multilingual datasets (this is one of its key design goals), but don't be surprised if you end up with a cluster that is characterized not by content, per se, but by language (e.g., a cluster that contains all the Arabic posts in your dataset).
 
-3. **It uses a lot of memory.** uCluster doesn't use pre-trained word vectors; this is what makes it possible to cluster multilingual content, as well as what allows it to perform so well on social media content. Rather, it trains its word vectors from scratch each time you run it. This means that it uses quite a bit of memory. You might want to run this on a powerful server somewhere — not on your laptop.
+3. **It uses a pre-trained multilingual sentence-transformer model.** uCluster downloads `paraphrase-multilingual-MiniLM-L12-v2` (~470MB) from the Hugging Face Hub on first use and caches it under `~/.cache/huggingface/`. **First run requires network access** — air-gapped environments need to pre-populate the cache or pass a local path via `FuzzyClusterer(model="/path/to/model")`. After the model is cached, embedding millions of posts is CPU/GPU-bound rather than memory-bound. If a GPU is available, sentence-transformers will use it automatically.
 
 4. **It assumes posts are relatively short.** uCluster works best on posts that are relatively short (think tweet-length). That makes it great for datasets from platforms like Twitter, Gab, Gettr, and Parler, where posts tend to be only a few sentences. It's going to be much less effective for classifying, say, Medium posts.
 
@@ -39,32 +39,25 @@ For most people installing uCluster is as easy as running `pip3 install ucluster
 
 ### Development Installation
 
-**Note**: Following these steps is only necessary if you want to be able to hack on uCluster's code itself.
+Clone uCluster (`git clone git@github.com:stanfordio/ucluster.git`), then run:
 
-The first step is to clone uCluster onto your local machine (`git clone git@github.com:stanfordio/ucluster.git`). Then follow the steps below.
+```sh
+uv sync --extra dev
+```
 
-#### 1. Install dependencies.
+That installs uCluster, its runtime dependencies, and the dev tooling (`pytest`, `ruff`, `ty`) into a managed `.venv`. There's no longer a need for Conda, Homebrew packages, or environment variables — pre-built wheels for `scikit-learn`, `torch`, and `sentence-transformers` cover x86 and Apple Silicon out of the box.
 
-Mac users will need to install OpenCV and OpenBLAS using Homebrew: `brew install openblas opencv`. (On Linux, see [this guide](https://docs.scipy.org/doc/scipy/reference/building/linux.html)).
+To install uCluster in your global VisiData environment instead, use:
 
-If you're on an x86 machine, everything should go relatively smoothly. With [Poetry](https://python-poetry.org/) installed, simply run `poetry install`. If you want to use uCluster in your "main" VisiData environment (i.e., you don't want to have to activate the Poetry virtual environment every time), then run `poetry config virtualenvs.create false` before running `poetry install`.
+```sh
+uv pip install --system -e .
+```
 
-If you're on an M1 machine, things are a bit more complex. It doesn't seem possible to install SciPy (required by NLTK) using pip3 on M1 Macs, as it requires building SciPy from scratch. As a result, you'll need to use [Conda](https://conda.io). In the main project folder, run `conda env create -f env.yml`, then `conda activate ucluster`. Next, run `poetry env use $(which python3)` followed by `poetry install`.
-
-> If you run into strange compilation issues on Mac while running `poetry install`, you may need to explicitly point Poetry at your OpenBLAS and OpenCV installations.
->
-> You can do this by running `SYSTEM_VERSION_COMPAT=1 LDFLAGS="-L/usr/local/opt/openblas/lib" CPPFLAGS="-I/usr/local/opt/openblas/include" OPENBLAS="$(brew --prefix openblas)" poetry install` instead of just `poetry install`.
-
-uCluster will now be available in your Python environment.
-
-#### 2. Install uCluster in VisiData
-
-First ensure that the local `ucluster` package is installed in the same Python environment as VisiData. Then simply add `import ucluster.vd.plugin` to your `~/.visidatarc` file, as explained above.
+Then add `import ucluster.vd.plugin` to your `~/.visidatarc` as described above.
 
 ## In The Weeds: Architecture & Design
 
 This section will eventually contain a more detailed explanation for how uCluster works. For now, here's a brief overview.
 
-* First, we throw all the text into a giant file and use it to train word vectors using FastText.
-* Next, we use those word vectors to turn each post into a vector. By default, we use 100-dimensional space.
-* Finally, we run [HDBSCAN](https://hdbscan.readthedocs.io/) on those post vectors to create the final clusters. HDBSCAN is a high-performance general purpose clustering algorithm.
+* First, we encode each post into a 384-dimensional vector using the [`paraphrase-multilingual-MiniLM-L12-v2`](https://huggingface.co/sentence-transformers/paraphrase-multilingual-MiniLM-L12-v2) sentence-transformer model. This model was trained on parallel sentences across 50+ languages, so semantically similar posts end up near each other in vector space regardless of language.
+* Then we run [HDBSCAN](https://scikit-learn.org/stable/modules/generated/sklearn.cluster.HDBSCAN.html) (via scikit-learn) on those post vectors to create the final clusters. HDBSCAN is a density-based clustering algorithm that automatically determines the number of clusters from the data.

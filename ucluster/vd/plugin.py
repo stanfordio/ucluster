@@ -1,20 +1,20 @@
-"""This plugin adds text and user clustering!"""
+"""This plugin adds text clustering commands to VisiData."""
 
-import visidata as vd
-from visidata import BaseSheet, Sheet, Column
-from visidata import threads
-from visidata.column import SettableColumn
-from visidata.vdobj import asyncthread
-from visidata.threads import Progress
 import threading
+
+from visidata.column import Column, SettableColumn
+from visidata.sheets import BaseSheet
+from visidata.threads import Progress
+from visidata.vdobj import asyncthread
+
 import ucluster
 
 __author__ = "R. Miles McCain <github@sendmiles.email>"
-__version__ = "1.0.0"
+__version__ = "2.0.0"
 
 
 @asyncthread
-def cluster(col: Column, clusterer: ucluster.TextClusterer, col_name: str):
+def cluster(col: Column, clusterer: ucluster.TextClusterer, col_name: str) -> None:
     sheet = col.sheet
     rows = sheet.rows
 
@@ -30,27 +30,19 @@ def cluster(col: Column, clusterer: ucluster.TextClusterer, col_name: str):
 
     clusterer.fit(texts)
 
-    for (
-        r,
-        v,
-    ) in zip(rows, clusterer.clusters()):
+    for r, v in zip(rows, clusterer.clusters(), strict=True):
         clusters.setValue(r, v)
 
 
 @Column.api
-def exact_cluster(col: Column):
+def exact_cluster(col: Column) -> None:
     cluster(col, ucluster.ExactClusterer(), col_name="exact")
 
 
 @Column.api
-def fuzzy_cluster(col: Column):
+def fuzzy_cluster(col: Column) -> None:
     cluster(col, ucluster.FuzzyClusterer(), col_name="fuzzy")
-
-@Column.api
-def tf_cluster(col: Column):
-    cluster(col, ucluster.TransformerCluster(), col_name="tf")
 
 
 BaseSheet.addCommand(None, "exact-cluster", "cursorCol.exact_cluster()")
 BaseSheet.addCommand(None, "fuzzy-cluster", "cursorCol.fuzzy_cluster()")
-BaseSheet.addCommand(None, "tf-cluster", "cursorCol.tf_cluster()")
